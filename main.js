@@ -1,14 +1,11 @@
 import gallery from "./gallery-items.js";
 
-const galleryArray = [...gallery];
-
 const galleryRef = document.querySelector(".gallery");
 const modalRef = document.querySelector(".lightbox");
 const modalOverleyRef = modalRef.querySelector(".lightbox__overlay");
 const buttonCloseRef = document.querySelector(
-  'button[ data-action="close-lightbox"]'
+  'button[data-action="close-lightbox"]'
 );
-
 const imageModalRef = modalRef.querySelector(".lightbox__image");
 
 function createGallery(
@@ -34,8 +31,6 @@ function createGallery(
   return listRef;
 }
 
-galleryRef.append(...gallery.map((elem, index) => createGallery(elem, index)));
-
 function checkKey(codeKey, value) {
   return codeKey === value;
 }
@@ -44,75 +39,93 @@ function checkTag(nodeName, tag) {
   return nodeName === tag;
 }
 
-function setImageModalWindow({ alt, dataset: { source, idx } }) {
+function setImageModal({ alt, source, idx }) {
   imageModalRef.src = source;
   imageModalRef.alt = alt;
   imageModalRef.dataset.currentIdx = idx;
 }
 
-function clearImageModalWindow() {
+function getIndexImageModal() {
+  return Number(imageModalRef.dataset.currentIdx);
+}
+
+function clearImageModal() {
   imageModalRef.src = "";
   imageModalRef.alt = "";
   imageModalRef.dataset.currentIdx = "";
 }
 
+function openModal() {
+  modalRef.classList.add("is-open");
+}
+
+function closeModal() {
+  modalRef.classList.remove("is-open");
+  clearImageModal();
+}
+
+function onEscapePress({ code }) {
+  if (!checkKey(code, "Escape")) {
+    return;
+  }
+  closeModal();
+}
+
+function addEscapeListener() {
+  window.addEventListener("keydown", onEscapePress);
+}
+
 function removeEscapeListener() {
   window.removeEventListener("keydown", onEscapePress);
 }
-function closeModal() {
-  modalRef.classList.remove("is-open");
-  clearImageModalWindow();
+
+function onCloseClick() {
+  closeModal();
   removeEscapeListener();
 }
 
-function onEscapePress(event) {
-  if (!checkKey(event.code, "Escape")) {
+function onArrowClick(code, currentIndex, array) {
+  if (checkKey(code, "ArrowRight")) {
+    if (currentIndex >= array.length - 1) {
+      return;
+    }
+    const nextImage = array[currentIndex + 1];
+
+    setImageModal({
+      alt: nextImage.alt,
+      source: nextImage.dataset.source,
+      idx: currentIndex + 1,
+    });
+  }
+  if (checkKey(code, "ArrowLeft")) {
+    if (currentIndex <= 0) {
+      return;
+    }
+    const previousImage = array[currentIndex - 1];
+
+    setImageModal({
+      alt: previousImage.alt,
+      source: previousImage.dataset.source,
+      idx: currentIndex - 1,
+    });
+  }
+}
+
+function onGalleryClick({ target: { nodeName, alt, dataset } }) {
+  if (!checkTag(nodeName, "IMG")) {
     return;
   }
-  closeModal();
+  openModal();
+  addEscapeListener();
+
+  setImageModal({ alt, source: dataset.source, idx: dataset.idx });
+
+  const imagesGallery = [...this.querySelectorAll("img")];
+  window.addEventListener("keydown", (event) => {
+    onArrowClick(event.code, getIndexImageModal(), imagesGallery);
+  });
 }
-
-function onButtonCloseClick() {
-  closeModal();
-}
-
-function onModalOverleyClick() {
-  closeModal();
-}
-
-function onGalleryClick({ target: tagClick }) {
-  if (!checkTag(tagClick.nodeName, "IMG")) {
-    return;
-  }
-
-  modalRef.classList.add("is-open");
-  window.addEventListener("keydown", onEscapePress);
-
-  setImageModalWindow(tagClick);
-
-  // window.addEventListener('keydown', event => {
-  // 	onArrowClick(event, imageModalRef);
-  // });
-}
-
+galleryRef.append(...gallery.map((elem, index) => createGallery(elem, index)));
 galleryRef.addEventListener("click", onGalleryClick);
-buttonCloseRef.addEventListener("click", onButtonCloseClick);
-modalOverleyRef.addEventListener("click", onModalOverleyClick);
-// function onArrowClick(event, img) {
-// 	console.log(img);
-// 	const { currentIdx } = img.dataset;
-// 	console.log(currentIdx);
-
-// 	if (event.code === 'ArrowRight') {
-// 		const nextIdx = Number(currentIdx) + 1;
-// 		console.log(nextIdx);
-// 		img.src = galleryArray[nextIdx].original;
-// 	}
-// 	if (event.code === 'ArrowLeft') {
-// 		if (currentIdx === 0) {
-// 			return;
-// 		}
-// 		const preIdx = Number(currentIdx - 1);
-// 		img.src = galleryArray[preIdx].original;
-// 	}
-// }
+buttonCloseRef.addEventListener("click", onCloseClick);
+modalOverleyRef.addEventListener("click", onCloseClick);
