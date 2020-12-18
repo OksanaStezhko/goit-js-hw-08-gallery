@@ -86,10 +86,11 @@ function onCloseClick() {
   removeEscapeListener();
 }
 
-function onArrowClick(event, array) {
+function onArrowClick(event, currentIndex, array) {
   event.preventDefault();
-  const {code} = event;
-  const currentIndex = getIndexImageModal();
+  const { code } = event;
+
+
   if (checkKey(code, "ArrowRight")) {
     if (currentIndex >= array.length - 1) {
       return;
@@ -128,7 +129,7 @@ function onGalleryClick({ target: { nodeName, alt, dataset } }) {
   const imagesGallery = [...this.querySelectorAll("img")];
 
   window.addEventListener("keydown", (event) => {
-    onArrowClick(event, imagesGallery);
+    onArrowClick(event, getIndexImageModal(), imagesGallery);
   });
 }
 galleryRef.append(...gallery.map((elem, index) => createGallery(elem, index)));
