@@ -43,6 +43,8 @@ function setImageModal({ alt, source, idx }) {
   imageModalRef.src = source;
   imageModalRef.alt = alt;
   imageModalRef.dataset.currentIdx = idx;
+  console.log(imageModalRef.dataset.currentIdx);
+
 }
 
 function getIndexImageModal() {
@@ -84,7 +86,10 @@ function onCloseClick() {
   removeEscapeListener();
 }
 
-function onArrowClick(code, currentIndex, array) {
+function onArrowClick(event, array) {
+  event.preventDefault();
+  const {code} = event;
+  const currentIndex = getIndexImageModal();
   if (checkKey(code, "ArrowRight")) {
     if (currentIndex >= array.length - 1) {
       return;
@@ -121,8 +126,9 @@ function onGalleryClick({ target: { nodeName, alt, dataset } }) {
   setImageModal({ alt, source: dataset.source, idx: dataset.idx });
 
   const imagesGallery = [...this.querySelectorAll("img")];
+
   window.addEventListener("keydown", (event) => {
-    onArrowClick(event.code, getIndexImageModal(), imagesGallery);
+    onArrowClick(event, imagesGallery);
   });
 }
 galleryRef.append(...gallery.map((elem, index) => createGallery(elem, index)));
