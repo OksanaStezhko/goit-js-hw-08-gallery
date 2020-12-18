@@ -43,7 +43,6 @@ function setImageModal({ alt, source, idx }) {
   imageModalRef.src = source;
   imageModalRef.alt = alt;
   imageModalRef.dataset.currentIdx = idx;
-  console.log(imageModalRef.dataset.currentIdx);
 
 }
 
@@ -77,6 +76,10 @@ function addEscapeListener() {
   window.addEventListener("keydown", onEscapePress);
 }
 
+function removeArrowListener(){
+  window.removeEventListener ("keydown", onArrowClick);
+}
+
 function removeEscapeListener() {
   window.removeEventListener("keydown", onEscapePress);
 }
@@ -84,18 +87,21 @@ function removeEscapeListener() {
 function onCloseClick() {
   closeModal();
   removeEscapeListener();
+  removeArrowListener();
 }
 
-function onArrowClick(event, currentIndex, array) {
+function onArrowClick(event) {
   event.preventDefault();
   const { code } = event;
 
+ const arrayImages = [...galleryRef.querySelectorAll("img")];
+ const currentIndex = getIndexImageModal();
 
   if (checkKey(code, "ArrowRight")) {
-    if (currentIndex >= array.length - 1) {
+    if (currentIndex >= arrayImages.length - 1) {
       return;
     }
-    const nextImage = array[currentIndex + 1];
+    const nextImage = arrayImages[currentIndex + 1];
 
     setImageModal({
       alt: nextImage.alt,
@@ -107,7 +113,7 @@ function onArrowClick(event, currentIndex, array) {
     if (currentIndex <= 0) {
       return;
     }
-    const previousImage = array[currentIndex - 1];
+    const previousImage = arrayImages[currentIndex - 1];
 
     setImageModal({
       alt: previousImage.alt,
@@ -126,12 +132,9 @@ function onGalleryClick({ target: { nodeName, alt, dataset } }) {
 
   setImageModal({ alt, source: dataset.source, idx: dataset.idx });
 
-  const imagesGallery = [...this.querySelectorAll("img")];
-
-  window.addEventListener("keydown", (event) => {
-    onArrowClick(event, getIndexImageModal(), imagesGallery);
-  });
+  window.addEventListener("keydown", onArrowClick);
 }
+
 galleryRef.append(...gallery.map((elem, index) => createGallery(elem, index)));
 galleryRef.addEventListener("click", onGalleryClick);
 buttonCloseRef.addEventListener("click", onCloseClick);
