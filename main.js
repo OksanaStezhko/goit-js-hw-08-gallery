@@ -8,10 +8,7 @@ const buttonCloseRef = document.querySelector(
 );
 const imageModalRef = modalRef.querySelector(".lightbox__image");
 
-function createGallery(
-  { preview: src, description: alt, original: source },
-  idx
-) {
+function createGallery( { preview, description, original },  idx) {
   const listRef = document.createElement("li");
   listRef.classList.add("gallery__item");
 
@@ -20,10 +17,10 @@ function createGallery(
 
   const imgRef = document.createElement("img");
   imgRef.classList.add("gallery__image");
-  imgRef.alt = alt;
-  imgRef.src = src;
+  imgRef.alt = description;
+  imgRef.src = preview;
   imgRef.dataset.idx = idx;
-  imgRef.dataset.source = source;
+  imgRef.dataset.source = original;
 
   listRef.append(linkRef);
   linkRef.append(imgRef);
@@ -62,7 +59,6 @@ function openModal() {
 
 function closeModal() {
   modalRef.classList.remove("is-open");
-  clearImageModal();
 }
 
 function onEscapePress({ code }) {
@@ -70,32 +66,29 @@ function onEscapePress({ code }) {
     return;
   }
   closeModal();
+  clearImageModal();
 }
 
-function addEscapeListener() {
-  window.addEventListener("keydown", onEscapePress);
+function addListeners(){
+   window.addEventListener("keydown", onEscapePress);
+   window.addEventListener("keydown", onArrowClick);
 }
 
-function removeArrowListener(){
-  window.removeEventListener ("keydown", onArrowClick);
-}
-
-function removeEscapeListener() {
+function removeListeners(){
   window.removeEventListener("keydown", onEscapePress);
+  window.removeEventListener("keydown", onArrowClick);
+
 }
 
 function onCloseClick() {
   closeModal();
-  removeEscapeListener();
-  removeArrowListener();
+  clearImageModal(  );
+  removeListeners();
 }
 
-function onArrowClick(event) {
-  event.preventDefault();
-  const { code } = event;
-
- const arrayImages = [...galleryRef.querySelectorAll("img")];
- const currentIndex = getIndexImageModal();
+function onArrowClick({ code }) {
+  const arrayImages = [...galleryRef.querySelectorAll("img")];
+  const currentIndex = getIndexImageModal();
 
   if (checkKey(code, "ArrowRight")) {
     if (currentIndex >= arrayImages.length - 1) {
@@ -123,16 +116,13 @@ function onArrowClick(event) {
   }
 }
 
-function onGalleryClick({ target: { nodeName, alt, dataset } }) {
+function onGalleryClick({ target: {   nodeName, alt, dataset } }) {
   if (!checkTag(nodeName, "IMG")) {
     return;
   }
   openModal();
-  addEscapeListener();
-
-  setImageModal({ alt, source: dataset.source, idx: dataset.idx });
-
-  window.addEventListener("keydown", onArrowClick);
+  setImageModal({ alt, source:   dataset.source, idx: dataset.idx });
+  addListeners();
 }
 
 galleryRef.append(...gallery.map((elem, index) => createGallery(elem, index)));
