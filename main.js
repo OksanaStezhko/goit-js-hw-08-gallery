@@ -82,7 +82,7 @@ function removeListeners(){
 
 function onCloseClick() {
   closeModal();
-  clearImageModal(  );
+  clearImageModal();
   removeListeners();
 }
 
@@ -116,12 +116,12 @@ function onArrowClick({ code }) {
   }
 }
 
-function onGalleryClick({ target: {   nodeName, alt, dataset } }) {
+function onGalleryClick({ target: { nodeName, alt, dataset } }) {
   if (!checkTag(nodeName, "IMG")) {
     return;
   }
   openModal();
-  setImageModal({ alt, source:   dataset.source, idx: dataset.idx });
+  setImageModal({ alt, source: dataset.source, idx: dataset.idx });
   addListeners();
 }
 
